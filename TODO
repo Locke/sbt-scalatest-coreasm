@@ -1,0 +1,3 @@
+- provide a README
+- build for sbt 1.0
+- publish to maven central
