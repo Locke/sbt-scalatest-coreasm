@@ -43,6 +43,7 @@ object ScalatestCoreASMPlugin extends AutoPlugin {
 
       (sourceGenerators in Test) <+= (generateCoreASMTests in TestCoreASM),
       (managedSourceDirectories in Test) <+= (sourceManaged in TestCoreASM),
+      (unmanagedResourceDirectories in Test) <+= (sourceDirectory in TestCoreASM),
       cleanFiles <+= (sourceManaged in TestCoreASM)
     )
 }
