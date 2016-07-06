@@ -1,4 +1,3 @@
 - provide a README
-- generate test class per folder
 - build for sbt 1.0
 - publish to maven central

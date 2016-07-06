@@ -3,6 +3,8 @@ package de.athalis.sbt.testcoreasm
 import sbt._
 import sbt.Keys._
 
+import java.nio.file.Path
+
 object ScalatestCoreASMPlugin extends AutoPlugin {
   override def requires = plugins.JvmPlugin
 
@@ -22,13 +24,13 @@ object ScalatestCoreASMPlugin extends AutoPlugin {
     excludeFilter := HiddenFileFilter,
 
     sources <<= (sourceDirectory, includeFilter, excludeFilter) map {
-      (srcDir, incl, excl) => (srcDir * (incl -- excl)).get
+      (srcDir, incl, excl) => (srcDir ** (incl -- excl)).get
     },
 
     generateCoreASMTests := {
       val cachedFun = FileFunction.cached(streams.value.cacheDirectory, FilesInfo.lastModified, FilesInfo.lastModified) {
         (in: Set[File]) =>
-          Generator(in, sourceManaged.value) : Set[File]
+          Generator(sourceDirectory.value, in, sourceManaged.value) : Set[File]
       }
       cachedFun(sources.value.toSet).toSeq
     }
@@ -59,19 +61,48 @@ Do not modify this file -- YOUR CHANGES WILL BE ERASED!
 import java.io.{ File => JFile }
 import java.nio.file.{ Path => JPath }
 
-class TestCoreASM extends TestAllCasm {
+class %s extends TestAllCasm {
   def testFiles: Seq[JPath] = %s
 }
 """
 
-  def apply(files: Set[File], outDir: File): Set[File] = {
-    val filesAbsolute = files.map(f => "new JFile(\"\"\""+f.getAbsolutePath+"\"\"\")")
+  def apply(srcDir: File, files: Set[File], outDir: File): Set[File] = {
+    val m: Map[String, Set[File]] = toMap(srcDir, files)
+
+    m.map(x => {
+        val parentFolder = x._1
+        val files = x._2
+        generate(files, outDir, parentFolder)
+      }).toSet.flatten
+  }
+
+  private def toMap(srcDir: File, files: Set[File]): Map[String, Set[File]] = {
+    val srcDirPath = srcDir.toPath
+
+    val x: Set[(String, File)] = files.map(f => {
+        val relativized: Path = srcDirPath.relativize(f.toPath)
+        val parent: Path = relativized.getParent
+        val x: String = if (parent == null) "WithoutTestClasses" else parent.getName(0).toString
+        (x, f)
+      })
+
+    val keys: Set[String] = x.map(_._1)
+    val m: Map[String, Set[File]] = keys.map(key => {
+        val files: Set[File] = x.filter(_._1 == key).map(_._2)
+        (key, files)
+      }).toMap
+
+    m
+  }
+
+  private def generate(files: Set[File], outDir: File, parentFolder: String): Set[File] = {
+    val filesAbsolute = files.map(f => "new JFile(\"\"\""+f.getCanonicalPath+"\"\"\")")
 
     val filesSeq = filesAbsolute.mkString("Seq(", ", ", ").map(_.toPath)")
 
-    val source = template format (info, filesSeq)
+    val source = template format (info, "Test" + parentFolder, filesSeq)
 
-    val outFile = outDir / "TestCoreASM.scala"
+    val outFile = outDir / ("Test" + parentFolder + ".scala")
     IO.write(outFile, source)
 
     Set(outFile)
