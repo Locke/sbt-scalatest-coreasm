@@ -174,7 +174,8 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
       if (failOnWarning) cp {
         //test if no error has occurred and maybe output error message
-        (outputLog should not include "WARN") withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
+        val x = outputLog.lines.filter(_.contains("WARN")).filterNot(_.contains("The update was not successful so it might not be added to the universe."))
+        x.toSeq shouldBe empty withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
       }
 
       for (refusedOutput <- refusedOutputList) {
