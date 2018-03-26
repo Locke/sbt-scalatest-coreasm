@@ -96,31 +96,35 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
   for (testFile <- testFiles) {
     test(testFile.toString) {
-      val origOutput: java.io.PrintStream = System.out
-      val origError: java.io.PrintStream = System.err
+      runSpecification(testFile)
+    }
+  }
 
-      val logStream = new ByteArrayOutputStream()
-      val outStream = new ByteArrayOutputStream()
-      val errStream = new ByteArrayOutputStream()
+  private def runSpecification(testFile: File): Unit = synchronized {
+    val origOutput: java.io.PrintStream = System.out
+    val origError: java.io.PrintStream = System.err
 
-      try {
-        System.setOut(new PrintStream(logStream))
-        System.setErr(new PrintStream(errStream))
+    val logStream = new ByteArrayOutputStream()
+    val outStream = new ByteArrayOutputStream()
+    val errStream = new ByteArrayOutputStream()
 
-        outStream.reset()
-        logStream.reset()
-        errStream.reset()
+    try {
+      System.setOut(new PrintStream(logStream))
+      System.setErr(new PrintStream(errStream))
 
-        runSpecification(testFile, outStream, logStream, errStream, origOutput)
+      outStream.reset()
+      logStream.reset()
+      errStream.reset()
 
-        outStream.reset()
-        logStream.reset()
-        errStream.reset()
-      }
-      finally {
-        System.setOut(origOutput)
-        System.setErr(origError)
-      }
+      runSpecification(testFile, outStream, logStream, errStream, origOutput)
+
+      outStream.reset()
+      logStream.reset()
+      errStream.reset()
+    }
+    finally {
+      System.setOut(origOutput)
+      System.setErr(origError)
     }
   }
 
