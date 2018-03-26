@@ -145,10 +145,6 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
         ( step should be >= minSteps ) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps: ")
       }
 
-      outStream.reset()
-      logStream.reset()
-      errStream.reset()
-
       td.executeSteps(1)
 
       val outputOut = outStream.toString
@@ -172,14 +168,18 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
       val cp = new Checkpoint
 
       cp {
-        //test if no error has occurred and maybe output error message
-        (outputErr shouldBe empty) withMessage ("output:\n" + outputOut + "\n\nEngine had an error after " + step + " steps: ")
+        //test if no unexpected error has occurred
+        var errors: Iterator[String] = outputErr.lines
+        errors = errors.filterNot(msg => msg.contains("SLF4J") && msg.contains("binding"))
+        (errors.toSeq shouldBe empty) withMessage ("log:\n" + outputLog + "\n\noutput:\n" + outputOut + "\n\nEngine had an error after " + step + " steps: ")
       }
 
       if (failOnWarning) cp {
-        //test if no error has occurred and maybe output error message
-        val x = outputLog.lines.filter(_.contains("WARN")).filterNot(_.contains("The update was not successful so it might not be added to the universe."))
-        x.toSeq shouldBe empty withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
+        //test if no unexpected warning has occurred
+        var warnings = outputLog.lines.filter(_.contains("WARN"))
+        warnings = warnings.filterNot(msg => msg.contains("The update was not successful so it might not be added to the universe."))
+        warnings = warnings.filterNot(msg => msg.contains("org.coreasm.util.Tools") && msg.toLowerCase.contains("root folder"))
+        (warnings.toSeq shouldBe empty) withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
       }
 
       for (refusedOutput <- refusedOutputList) {
@@ -191,6 +191,10 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
 
       requiredOutputList = requiredOutputList.filterNot { x => outputOut.contains(x) }
+
+      outStream.reset()
+      logStream.reset()
+      errStream.reset()
     }
 
     //check if no required output is missing
