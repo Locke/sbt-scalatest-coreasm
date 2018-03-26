@@ -136,71 +136,75 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
     val td = TestEngineDriver.newLaunch(testFile, null)
 
-    td.setOutputStream(new PrintStream(outStream))
+    try {
 
-    for (step <- 0 to maxSteps if (step < minSteps || !requiredOutputList.isEmpty)) {
+      td.setOutputStream(new PrintStream(outStream))
 
-      if (td.getStatus == TestEngineDriver.TestEngineDriverStatus.stopped) {
-        ( requiredOutputList shouldBe empty ) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps, but is missing required output: ")
-        ( step should be >= minSteps ) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps: ")
-      }
+      for (step <- 0 to maxSteps if (step < minSteps || !requiredOutputList.isEmpty)) {
 
-      td.executeSteps(1)
-
-      val outputOut = outStream.toString
-      val outputLog = logStream.toString
-      val outputErr = errStream.toString
-
-      for (line <- outputOut.lines.filter(outFilter)) {
-        origOutput.println("out: " + line)
-      }
-
-      for (line <- outputLog.lines.filter(logFilter)) {
-        origOutput.println("log" + line)
-      }
-
-      for (line <- outputErr.lines.filter(errFilter)) {
-        origOutput.println("err: " + line)
-      }
-
-
-      //check for refused output / errors. report all errors
-      val cp = new Checkpoint
-
-      cp {
-        //test if no unexpected error has occurred
-        var errors: Iterator[String] = outputErr.lines
-        errors = errors.filterNot(msg => msg.contains("SLF4J") && msg.contains("binding"))
-        (errors.toSeq shouldBe empty) withMessage ("log:\n" + outputLog + "\n\noutput:\n" + outputOut + "\n\nEngine had an error after " + step + " steps: ")
-      }
-
-      if (failOnWarning) cp {
-        //test if no unexpected warning has occurred
-        var warnings = outputLog.lines.filter(_.contains("WARN"))
-        warnings = warnings.filterNot(msg => msg.contains("The update was not successful so it might not be added to the universe."))
-        warnings = warnings.filterNot(msg => msg.contains("org.coreasm.util.Tools") && msg.toLowerCase.contains("root folder"))
-        (warnings.toSeq shouldBe empty) withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
-      }
-
-      for (refusedOutput <- refusedOutputList) {
-        cp {
-          outputOut.lines.filter(_.contains(refusedOutput)).toSeq shouldBe empty withMessage ("output: \n" + outputOut)
+        if (td.getStatus == TestEngineDriver.TestEngineDriverStatus.stopped) {
+          (requiredOutputList shouldBe empty) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps, but is missing required output: ")
+          (step should be >= minSteps) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps: ")
         }
+
+        td.executeSteps(1)
+
+        val outputOut = outStream.toString
+        val outputLog = logStream.toString
+        val outputErr = errStream.toString
+
+        for (line <- outputOut.lines.filter(outFilter)) {
+          origOutput.println("out: " + line)
+        }
+
+        for (line <- outputLog.lines.filter(logFilter)) {
+          origOutput.println("log" + line)
+        }
+
+        for (line <- outputErr.lines.filter(errFilter)) {
+          origOutput.println("err: " + line)
+        }
+
+
+        //check for refused output / errors. report all errors
+        val cp = new Checkpoint
+
+        cp {
+          //test if no unexpected error has occurred
+          var errors: Iterator[String] = outputErr.lines
+          errors = errors.filterNot(msg => msg.contains("SLF4J") && msg.contains("binding"))
+          (errors.toSeq shouldBe empty) withMessage ("log:\n" + outputLog + "\n\noutput:\n" + outputOut + "\n\nEngine had an error after " + step + " steps: ")
+        }
+
+        if (failOnWarning) cp {
+          //test if no unexpected warning has occurred
+          var warnings = outputLog.lines.filter(_.contains("WARN"))
+          warnings = warnings.filterNot(msg => msg.contains("The update was not successful so it might not be added to the universe."))
+          warnings = warnings.filterNot(msg => msg.contains("org.coreasm.util.Tools") && msg.toLowerCase.contains("root folder"))
+          (warnings.toSeq shouldBe empty) withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
+        }
+
+        for (refusedOutput <- refusedOutputList) {
+          cp {
+            outputOut.lines.filter(_.contains(refusedOutput)).toSeq shouldBe empty withMessage ("output: \n" + outputOut)
+          }
+        }
+        cp.reportAll()
+
+
+        requiredOutputList = requiredOutputList.filterNot { x => outputOut.contains(x) }
+
+        outStream.reset()
+        logStream.reset()
+        errStream.reset()
       }
-      cp.reportAll()
 
-
-      requiredOutputList = requiredOutputList.filterNot { x => outputOut.contains(x) }
-
-      outStream.reset()
-      logStream.reset()
-      errStream.reset()
+      //check if no required output is missing
+      (requiredOutputList shouldBe empty) withMessage (outStream.toString + "\n\nremaining required output: ")
     }
-
-    //check if no required output is missing
-    ( requiredOutputList shouldBe empty ) withMessage (outStream.toString + "\n\nremaining required output: ")
-
-    td.stop()
+    finally {
+      td.stop()
+    }
   }
 }
 
