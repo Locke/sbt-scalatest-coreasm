@@ -200,7 +200,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
       }
 
       //check if no required output is missing
-      (requiredOutputList shouldBe empty) withMessage (outStream.toString + "\n\nremaining required output: ")
+      (requiredOutputList shouldBe empty) withMessage (outStream.toString + "\n\nremaining required output after " + maxSteps + " maxSteps: ")
     }
     finally {
       td.stop()
