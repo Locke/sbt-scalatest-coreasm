@@ -96,7 +96,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
   for (testFile <- testFiles) {
     test(testFile.toString) {
-      runSpecification(testFile)
+      runSpecification(testFile.toFile)
     }
   }
 
@@ -116,7 +116,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
       logStream.reset()
       errStream.reset()
 
-      runSpecification(testFile, outStream, logStream, errStream, origOutput)
+      runSpecification(testFile.toPath, outStream, logStream, errStream, origOutput)
 
       outStream.reset()
       logStream.reset()
