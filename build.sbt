@@ -14,13 +14,12 @@ lazy val scalatestCoreASMLibrary = (project in file("scalatestCoreASMLibrary"))
   )
 
 lazy val scalatestCoreASM = (project in file("scalatestCoreASM"))
-  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(BuildInfoPlugin, SbtPlugin)
   .dependsOn(scalatestCoreASMLibrary)
   .settings(Commons.settings)
   .settings(
     organization := "de.athalis",
     name := "sbt-scalatest-coreasm",
-    sbtPlugin := true,
     // sbt 1 is compiled against 2.12
     scalaVersion := Commons.appScalaVersion_2_12,
     crossScalaVersions := Seq(Commons.appScalaVersion_2_12),
