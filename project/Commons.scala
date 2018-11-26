@@ -10,7 +10,7 @@ object Commons {
 
   val settings = Def.settings(
     version := appVersion,
-    scalaVersion := appScalaVersion_2_10,
+    scalaVersion := appScalaVersion_2_12,
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
