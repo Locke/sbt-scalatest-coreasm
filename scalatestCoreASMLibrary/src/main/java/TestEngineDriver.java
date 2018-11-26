@@ -119,8 +119,6 @@ public class TestEngineDriver implements EngineStepObserver, EngineErrorObserver
 
     private void executeStepsImpl(int stepsLimit)
     {
-        int step = 0;
-
         boolean doShutdown = false;
 
         Set<Update> updates, prevupdates = null;
@@ -131,6 +129,8 @@ public class TestEngineDriver implements EngineStepObserver, EngineErrorObserver
                 handleError();
                 return;
             }
+
+            int step = 0;
 
             while (engine.getEngineMode() == EngineMode.emIdle) {
                 status = TestEngineDriverStatus.running;
@@ -227,11 +227,14 @@ public class TestEngineDriver implements EngineStepObserver, EngineErrorObserver
     }
 
     protected void handleError() {
-        String message = "";
-        if (lastError != null)
+        String message;
+
+        if (lastError != null) {
             message = lastError.showError();
-        else
+        }
+        else {
             message = "Enginemode should be " + EngineMode.emIdle + " but is " + engine.getEngineMode();
+        }
 
         showErrorDialog("CoreASM Engine Error", message);
 

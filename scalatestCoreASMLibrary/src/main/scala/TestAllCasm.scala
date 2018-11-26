@@ -207,4 +207,3 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
     }
   }
 }
-

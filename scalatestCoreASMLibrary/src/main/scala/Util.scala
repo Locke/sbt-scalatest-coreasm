@@ -11,5 +11,5 @@ object Util {
     }
   }
 
-  implicit def convertAssertion(f: => Any) = new AssertionHolder(f)
+  implicit def convertAssertion(f: => Any): AssertionHolder = new AssertionHolder(f)
 }
