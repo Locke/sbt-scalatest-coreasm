@@ -17,15 +17,13 @@ object ScalatestCoreASMPlugin extends AutoPlugin {
   import autoImport._
 
   lazy val baseTestCoreASMSettings = Def.settings(
-    sourceDirectory <<= (sourceDirectory in Test) { _ / "coreasm" },
-    sourceManaged <<= (sourceManaged in Test) { _ / "coreasm" },
+    sourceDirectory := (sourceDirectory in Test) { _ / "coreasm" }.value,
+    sourceManaged := (sourceManaged in Test) { _ / "coreasm" }.value,
 
     includeFilter := ("*.casm" || "*.coreasm"),
     excludeFilter := HiddenFileFilter,
 
-    sources <<= (sourceDirectory, includeFilter, excludeFilter) map {
-      (srcDir, incl, excl) => (srcDir ** (incl -- excl)).get
-    },
+    sources := (sourceDirectory.value ** (includeFilter.value -- excludeFilter.value)).get,
 
     generateCoreASMTests := {
       val cachedFun = FileFunction.cached(streams.value.cacheDirectory, FilesInfo.lastModified, FilesInfo.lastModified) {
@@ -41,10 +39,10 @@ object ScalatestCoreASMPlugin extends AutoPlugin {
     Def.settings(
       libraryDependencies ++= Seq("de.athalis" %% "sbt-scalatest-coreasm-lib" % BuildInfo.version % "test"),
 
-      (sourceGenerators in Test) <+= (generateCoreASMTests in TestCoreASM),
-      (managedSourceDirectories in Test) <+= (sourceManaged in TestCoreASM),
-      (unmanagedResourceDirectories in Test) <+= (sourceDirectory in TestCoreASM),
-      cleanFiles <+= (sourceManaged in TestCoreASM)
+      sourceGenerators in Test += (generateCoreASMTests in TestCoreASM),
+      (managedSourceDirectories in Test) += (sourceManaged in TestCoreASM).value,
+      (unmanagedResourceDirectories in Test) += (sourceDirectory in TestCoreASM).value,
+      cleanFiles += (sourceManaged in TestCoreASM).value
     )
 }
 
