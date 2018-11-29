@@ -40,6 +40,9 @@ object ScalatestCoreASMPlugin extends AutoPlugin {
     Def.settings(
       libraryDependencies ++= Seq("de.athalis" %% "sbt-scalatest-coreasm-lib" % BuildInfo.version % "test"),
 
+      // fork is necessary as the Engine only writes to System.out
+      fork in Test := true,
+
       sourceGenerators in Test += (generateCoreASMTests in TestCoreASM),
       managedSourceDirectories in Test += (sourceManaged in TestCoreASM).value,
       unmanagedResourceDirectories in Test += (sourceDirectory in TestCoreASM).value,
