@@ -25,5 +25,9 @@ lazy val scalatestCoreASM = (project in file("scalatestCoreASM"))
     crossScalaVersions := Seq(Commons.appScalaVersion_2_12),
     libraryDependencies ++= Dependencies.scalatestCoreASMDependencies,
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "de.athalis.sbt.testcoreasm"
+    buildInfoPackage := "de.athalis.sbt.testcoreasm",
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
   )

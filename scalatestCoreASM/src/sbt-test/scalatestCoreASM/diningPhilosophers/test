@@ -1,0 +1,26 @@
+> ++2.10.7
+> clean
+> scalatestCoreASMExample/test:compile
+#$ pause
+$ exists scalatestCoreASMExample/target/scala-2.10/test-classes/DiningPhilosophers.casm
+$ exists scalatestCoreASMExample/target/scala-2.10/src_managed/test/coreasm/TestWithoutTestClasses.scala
+$ exists scalatestCoreASMExample/target/scala-2.10/test-classes/de/athalis/sbt/testcoreasm/TestWithoutTestClasses.class
+> scalatestCoreASMExample/test
+
+> ++2.11.12
+> clean
+> scalatestCoreASMExample/test:compile
+#$ pause
+$ exists scalatestCoreASMExample/target/scala-2.11/test-classes/DiningPhilosophers.casm
+$ exists scalatestCoreASMExample/target/scala-2.11/src_managed/test/coreasm/TestWithoutTestClasses.scala
+$ exists scalatestCoreASMExample/target/scala-2.11/test-classes/de/athalis/sbt/testcoreasm/TestWithoutTestClasses.class
+> scalatestCoreASMExample/test
+
+> ++2.12.7
+> clean
+> scalatestCoreASMExample/test:compile
+#$ pause
+$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/DiningPhilosophers.casm
+$ exists scalatestCoreASMExample/target/scala-2.12/src_managed/test/coreasm/TestWithoutTestClasses.scala
+$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/de/athalis/sbt/testcoreasm/TestWithoutTestClasses.class
+> scalatestCoreASMExample/test
