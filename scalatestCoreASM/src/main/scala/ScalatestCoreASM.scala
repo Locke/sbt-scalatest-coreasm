@@ -17,8 +17,8 @@ object ScalatestCoreASMPlugin extends AutoPlugin {
   import autoImport._
 
   lazy val baseTestCoreASMSettings = Def.settings(
-    sourceDirectory := (sourceDirectory in Test) { _ / "coreasm" }.value,
-    sourceManaged := (sourceManaged in Test) { _ / "coreasm" }.value,
+    sourceDirectory := (sourceDirectory in Test).value / "coreasm",
+    sourceManaged := (sourceManaged in Test).value / "coreasm",
 
     includeFilter := ("*.casm" || "*.coreasm"),
     excludeFilter := HiddenFileFilter,
@@ -40,8 +40,8 @@ object ScalatestCoreASMPlugin extends AutoPlugin {
       libraryDependencies ++= Seq("de.athalis" %% "sbt-scalatest-coreasm-lib" % BuildInfo.version % "test"),
 
       sourceGenerators in Test += (generateCoreASMTests in TestCoreASM),
-      (managedSourceDirectories in Test) += (sourceManaged in TestCoreASM).value,
-      (unmanagedResourceDirectories in Test) += (sourceDirectory in TestCoreASM).value,
+      managedSourceDirectories in Test += (sourceManaged in TestCoreASM).value,
+      unmanagedResourceDirectories in Test += (sourceDirectory in TestCoreASM).value,
       cleanFiles += (sourceManaged in TestCoreASM).value
     )
 }
