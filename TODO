@@ -1,3 +1,0 @@
-- provide a README
-- un-fork TestEngineDriver.java once a coreasm version is published to maven that contains https://github.com/CoreASM/coreasm.core/pull/26 (specifically 53e4979 and cf7010d)
-- publish to maven central
