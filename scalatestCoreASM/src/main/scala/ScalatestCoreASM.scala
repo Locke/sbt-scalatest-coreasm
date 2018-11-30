@@ -3,8 +3,6 @@ package de.athalis.sbt.testcoreasm
 import sbt._
 import sbt.Keys._
 
-import java.nio.file.Path
-
 object ScalatestCoreASMPlugin extends AutoPlugin {
   override def requires = plugins.JvmPlugin
 
