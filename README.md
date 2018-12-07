@@ -40,6 +40,7 @@ This Plugin uses customizable scoped settings:
 * `sourceManaged in TestCoreASM` sets the directory where the generated ScalaTest files are stored. Default: `target/src_managed/test/coreasm`
 * `includeFilter in TestCoreASM` sets which files are considered as CoreASM file. Default: `("*.casm" || "*.coreasm")`
 * `excludeFilter in TestCoreASM` sets which files to ignore when searching for CoreASM files. Default: `HiddenFileFilter`
+* `testCoreASMPackageName in TestCoreASM` sets the package name for the generated scalatest classes. Default: `de.athalis.sbt.testcoreasm.generated`
 
 Note: this plugin sets `fork in Test := true` in your test scope, as the CoreASM Engine writes to System.out, which needs to be redirected in order to check the outputs of the execution.
 

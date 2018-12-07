@@ -8,6 +8,9 @@ lazy val scalatestCoreASMExample = (project in file("scalatestCoreASMExample"))
   .settings(
     name := "sbt-scalatest-coreasm-example",
     scalaVersion := Commons.appScalaVersion_2_12,
+
+    testCoreASMPackageName in TestCoreASM := "com.example",
+
     sourceDirectory in TestCoreASM := file("./customSource"),
     includeFilter in TestCoreASM := "*.customCoreasm",
     sourceManaged in TestCoreASM := file("./customSourceManaged")

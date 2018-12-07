@@ -2,8 +2,8 @@
 #$ pause
 $ exists customSourceManaged/TestSubFolder.scala
 $ exists customSourceManaged/TestWithoutTestClasses.scala
-$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/de/athalis/sbt/testcoreasm/TestSubFolder.class
-$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/de/athalis/sbt/testcoreasm/TestWithoutTestClasses.class
+$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/com/example/TestSubFolder.class
+$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/com/example/TestWithoutTestClasses.class
 
 > scalatestCoreASMExample/test
 
@@ -11,5 +11,5 @@ $ exists scalatestCoreASMExample/target/scala-2.12/test-classes/de/athalis/sbt/t
 #$ pause
 $ absent customSourceManaged/TestSubFolder.scala
 $ absent customSourceManaged/TestWithoutTestClasses.scala
-$ absent scalatestCoreASMExample/target/scala-2.12/test-classes/de/athalis/sbt/testcoreasm/TestSubFolder.class
-$ absent scalatestCoreASMExample/target/scala-2.12/test-classes/de/athalis/sbt/testcoreasm/TestWithoutTestClasses.class
+$ absent scalatestCoreASMExample/target/scala-2.12/test-classes/com/example/TestSubFolder.class
+$ absent scalatestCoreASMExample/target/scala-2.12/test-classes/com/example/TestWithoutTestClasses.class
