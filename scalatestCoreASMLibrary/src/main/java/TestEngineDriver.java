@@ -100,20 +100,25 @@ public class TestEngineDriver implements EngineStepObserver, EngineErrorObserver
     }
 
     public static TestEngineDriver newLaunch(Path path, String pluginFolders) throws IOException {
+        Reader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path)));
+
+        return newLaunch(path.getFileName().toString(), reader, pluginFolders);
+    }
+
+    public static TestEngineDriver newLaunch(String name, Reader src, String pluginFolders) {
         TestEngineDriver td = new TestEngineDriver(pluginFolders);
         td.setDefaultConfig();
-        td.dolaunch(path);
+        td.dolaunch(name, src);
         return td;
     }
 
-    private void dolaunch(Path path) throws IOException {
+    private void dolaunch(String name, Reader src) {
         if (engine.getEngineMode() == EngineMode.emError) {
             engine.recover();
             engine.waitWhileBusy();
         }
 
-        Reader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path)));
-        engine.loadSpecification(reader);
+        engine.loadSpecification(name, src);
         engine.waitWhileBusy();
     }
 
