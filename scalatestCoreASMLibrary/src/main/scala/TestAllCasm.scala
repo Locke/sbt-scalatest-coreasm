@@ -7,80 +7,12 @@ This is based on: https://github.com/CoreASM/coreasm.core/blob/master/org.coreas
 */
 
 import java.io.{FileSystem => _, _}
-import java.nio.file._
-import java.util.regex.Pattern
+import java.nio.file.{Files, Path}
 
-import scala.collection.JavaConversions._
 import org.scalatest._
-
-import org.coreasm.util.Tools
-
-object TestAllCasm {
-  def getFilteredOutput(file: Path, filter: String): Seq[String] = {
-    var filteredOutputList = Seq.empty[String]
-    val pattern = Pattern.compile(filter + ".*")
-
-    var input: BufferedReader = null
-    try {
-      input = new BufferedReader(new InputStreamReader(Files.newInputStream(file)))
-      var line: String = null
-
-      while ({line = input.readLine(); line != null}) {
-        val matcher = pattern.matcher(line)
-        if (matcher.find()) {
-          val first = line.indexOf("\"", matcher.start) + 1
-          val last = line.indexOf("\"", first)
-          if (last > first) {
-            filteredOutputList +:= Tools.convertFromEscapeSequence(line.substring(first, last))
-          }
-        }
-      }
-    }
-    catch {
-      case e: FileNotFoundException => e.printStackTrace()
-      case e: IOException => e.printStackTrace()
-    }
-    finally {
-      if (input != null)
-        input.close()
-    }
-
-    filteredOutputList
-  }
-
-  def getParameter(file: Path, name: String): Option[Int] = {
-    var value: Option[Int] = None
-    val pattern = Pattern.compile("@" + name + "\\s*(\\d+)")
-
-    var input: BufferedReader = null
-    try {
-      input = new BufferedReader(new InputStreamReader(Files.newInputStream(file)))
-      var line: String = null
-      var found = false
-      while (!found && {line = input.readLine(); line != null}) {
-        val matcher = pattern.matcher(line)
-        if (matcher.find()) {
-          value = Some(Integer.parseInt(matcher.group(1)))
-          found = true
-        }
-      }
-    }
-    catch {
-      case e: FileNotFoundException => e.printStackTrace()
-      case e: IOException => e.printStackTrace()
-    }
-    finally {
-      if (input != null)
-        input.close()
-    }
-
-    value
-  }
-}
 
 //class TestAllCasm extends FunSuite with Matchers {
 abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
-  import TestAllCasm._
   import Util._
 
   def outFilter(in: String): Boolean = false
@@ -129,22 +61,22 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
   }
 
   private def runSpecification(testFile: Path, outStream: ByteArrayOutputStream, logStream: ByteArrayOutputStream, errStream: ByteArrayOutputStream, origOutput: PrintStream): Unit = {
-    var requiredOutputList = getFilteredOutput(testFile, "@require")
-    val refusedOutputList = getFilteredOutput(testFile, "@refuse")
-    val minSteps = getParameter(testFile, "minsteps").getOrElse(1)
-    val maxSteps = getParameter(testFile, "maxsteps").getOrElse(minSteps)
 
-    val srcReader: Reader = new InputStreamReader(Files.newInputStream(testFile)) // TODO: close?
-    val td = TestEngineDriver.newLaunch(testFile.getFileName.toString, srcReader, null)
+    val srcReader1: Reader = new InputStreamReader(Files.newInputStream(testFile)) // NOTE: currently closed in readTestSettings
+    val testSettings: TestSettings = TestSettings.readTestSettings(srcReader1)
+    var requiredOutputList = testSettings.require
+
+    val srcReader2: Reader = new InputStreamReader(Files.newInputStream(testFile)) // TODO: close?
+    val td = TestEngineDriver.newLaunch(testFile.getFileName.toString, srcReader2, null)
 
     try {
       td.setOutputStream(new PrintStream(outStream))
 
-      for (step <- 0 to maxSteps if (step < minSteps || !requiredOutputList.isEmpty)) {
+      for (step <- 0 to testSettings.maxSteps if (step < testSettings.minSteps || !requiredOutputList.isEmpty)) {
 
         if (td.getStatus == TestEngineDriver.TestEngineDriverStatus.stopped) {
           (requiredOutputList shouldBe empty) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps, but is missing required output: ")
-          (step should be >= minSteps) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps: ")
+          (step should be >= testSettings.minSteps) withMessage ("output:\n" + outStream.toString + "\n\nerrors:\n" + errStream.toString + "\n\nEngine terminated after " + step + " steps: ")
         }
 
         td.executeSteps(1)
@@ -184,7 +116,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
           (warnings.toSeq shouldBe empty) withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
         }
 
-        for (refusedOutput <- refusedOutputList) {
+        for (refusedOutput <- testSettings.refuse) {
           cp {
             outputOut.lines.filter(_.contains(refusedOutput)).toSeq shouldBe empty withMessage ("output: \n" + outputOut)
           }
@@ -200,7 +132,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
       }
 
       //check if no required output is missing
-      (requiredOutputList shouldBe empty) withMessage (outStream.toString + "\n\nremaining required output after " + maxSteps + " maxSteps: ")
+      (requiredOutputList shouldBe empty) withMessage (outStream.toString + "\n\nremaining required output after " + testSettings.maxSteps + " maxSteps: ")
     }
     finally {
       td.stop()
