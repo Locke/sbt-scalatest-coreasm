@@ -134,10 +134,10 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
     val minSteps = getParameter(testFile, "minsteps").getOrElse(1)
     val maxSteps = getParameter(testFile, "maxsteps").getOrElse(minSteps)
 
-    val td = TestEngineDriver.newLaunch(testFile, null)
+    val srcReader: Reader = new InputStreamReader(Files.newInputStream(testFile)) // TODO: close?
+    val td = TestEngineDriver.newLaunch(testFile.getFileName.toString, srcReader, null)
 
     try {
-
       td.setOutputStream(new PrintStream(outStream))
 
       for (step <- 0 to maxSteps if (step < minSteps || !requiredOutputList.isEmpty)) {
