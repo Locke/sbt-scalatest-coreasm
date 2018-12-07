@@ -96,11 +96,11 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
   for (testFile <- testFiles) {
     test(testFile.toString) {
-      runSpecification(testFile.toFile)
+      runSpecification(testFile)
     }
   }
 
-  private def runSpecification(testFile: File): Unit = synchronized {
+  private def runSpecification(testFile: Path): Unit = synchronized {
     val origOutput: java.io.PrintStream = System.out
     val origError: java.io.PrintStream = System.err
 
@@ -116,7 +116,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
       logStream.reset()
       errStream.reset()
 
-      runSpecification(testFile.toPath, outStream, logStream, errStream, origOutput)
+      runSpecification(testFile, outStream, logStream, errStream, origOutput)
 
       outStream.reset()
       logStream.reset()
