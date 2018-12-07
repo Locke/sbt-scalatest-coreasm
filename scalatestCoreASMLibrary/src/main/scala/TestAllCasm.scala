@@ -7,7 +7,6 @@ This is based on: https://github.com/CoreASM/coreasm.core/blob/master/org.coreas
 */
 
 import java.io.{FileSystem => _, _}
-import java.nio.file.{Files, Path}
 
 import org.scalatest._
 
@@ -20,19 +19,20 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
   def errFilter(in: String): Boolean = false
   def failOnWarning: Boolean = true
 
-  def testFiles: Seq[Path]
+  def testFileNames: Seq[String]
+  def getTestFileReader(testFileName: String): Reader
 
   test ("initialize") {
-    ( testFiles should not be empty ) withMessage ("testFiles: ")
+    ( testFileNames should not be empty ) withMessage ("testFiles: ")
   }
 
-  for (testFile <- testFiles) {
-    test(testFile.toString) {
-      runSpecification(testFile)
+  for (testFileName <- testFileNames) {
+    test(testFileName) {
+      runSpecification(testFileName)
     }
   }
 
-  private def runSpecification(testFile: Path): Unit = synchronized {
+  private def runSpecification(testFileName: String): Unit = synchronized {
     val origOutput: java.io.PrintStream = System.out
     val origError: java.io.PrintStream = System.err
 
@@ -48,7 +48,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
       logStream.reset()
       errStream.reset()
 
-      runSpecification(testFile, outStream, logStream, errStream, origOutput)
+      runSpecification(testFileName, outStream, logStream, errStream, origOutput)
 
       outStream.reset()
       logStream.reset()
@@ -60,14 +60,14 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
     }
   }
 
-  private def runSpecification(testFile: Path, outStream: ByteArrayOutputStream, logStream: ByteArrayOutputStream, errStream: ByteArrayOutputStream, origOutput: PrintStream): Unit = {
+  private def runSpecification(testFileName: String, outStream: ByteArrayOutputStream, logStream: ByteArrayOutputStream, errStream: ByteArrayOutputStream, origOutput: PrintStream): Unit = {
 
-    val srcReader1: Reader = new InputStreamReader(Files.newInputStream(testFile)) // NOTE: currently closed in readTestSettings
+    val srcReader1: Reader = getTestFileReader(testFileName) // NOTE: currently closed in readTestSettings
     val testSettings: TestSettings = TestSettings.readTestSettings(srcReader1)
     var requiredOutputList = testSettings.require
 
-    val srcReader2: Reader = new InputStreamReader(Files.newInputStream(testFile)) // TODO: close?
-    val td = TestEngineDriver.newLaunch(testFile.getFileName.toString, srcReader2, null)
+    val srcReader2: Reader = getTestFileReader(testFileName) // TODO: close?
+    val td = TestEngineDriver.newLaunch(testFileName, srcReader2, null)
 
     try {
       td.setOutputStream(new PrintStream(outStream))

@@ -2,10 +2,13 @@
 #$ pause
 $ exists customSourceManaged/TestSubFolder.scala
 $ exists customSourceManaged/TestWithoutTestClasses.scala
+$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/DiningPhilosophers.customCoreasm
+$ exists scalatestCoreASMExample/target/scala-2.12/test-classes/SubFolder/DiningPhilosophers.customCoreasm
 $ exists scalatestCoreASMExample/target/scala-2.12/test-classes/com/example/TestSubFolder.class
 $ exists scalatestCoreASMExample/target/scala-2.12/test-classes/com/example/TestWithoutTestClasses.class
 
 > scalatestCoreASMExample/test
+#$ pause
 
 > scalatestCoreASMExample/clean
 #$ pause
