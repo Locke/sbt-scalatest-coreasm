@@ -22,6 +22,7 @@ object Commons {
       "-Yno-adapted-args",
       "-Ywarn-dead-code",
       "-Ywarn-numeric-widen",
-      "-Xfatal-warnings")
+      //"-Xfatal-warnings",
+    )
   )
 }
