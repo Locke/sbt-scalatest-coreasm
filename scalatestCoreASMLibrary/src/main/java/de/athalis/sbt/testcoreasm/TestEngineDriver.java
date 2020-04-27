@@ -52,10 +52,10 @@ public class TestEngineDriver implements EngineStepObserver, EngineErrorObserver
 	private boolean stopOnEmptyActiveAgents;
 	private boolean stopOnFailedUpdates;
 
-	private TestEngineDriver(String pluginFolders) {
+	public TestEngineDriver(String pluginFolders, java.util.Properties properties) {
 		runningInstances.add(this);
 		CoreASMGlobal.setRootFolder(Tools.getRootFolder());
-		engine = (Engine) org.coreasm.engine.CoreASMEngineFactory.createEngine();
+		engine = (Engine) org.coreasm.engine.CoreASMEngineFactory.createEngine(properties);
 		engine.addObserver(this);
 
 		if (pluginFolders != null) {
@@ -100,20 +100,30 @@ public class TestEngineDriver implements EngineStepObserver, EngineErrorObserver
 		return runningInstances.contains(this);
 	}
 
+	public static TestEngineDriver newLaunch(String abspathname, String pluginFolders) throws IOException {
+		Path path = new File(abspathname).toPath();
+
+		return TestEngineDriver.newLaunch(path, pluginFolders);
+	}
+
 	public static TestEngineDriver newLaunch(Path path, String pluginFolders) throws IOException {
 		Reader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(path)));
 
-		return newLaunch(path.getFileName().toString(), reader, pluginFolders);
+		return TestEngineDriver.newLaunch(path.getFileName().toString(), reader, pluginFolders, new java.util.Properties());
 	}
 
-	public static TestEngineDriver newLaunch(String name, Reader src, String pluginFolders) {
-		TestEngineDriver td = new TestEngineDriver(pluginFolders);
+	public static TestEngineDriver newLaunch(String name, Reader src) {
+		return TestEngineDriver.newLaunch(name, src, null, new java.util.Properties());
+	}
+
+	public static TestEngineDriver newLaunch(String name, Reader src, String pluginFolders, java.util.Properties properties) {
+		TestEngineDriver td = new TestEngineDriver(pluginFolders, properties);
 		td.setDefaultConfig();
-		td.dolaunch(name, src);
+		td.doLaunch(name, src);
 		return td;
 	}
 
-	private void dolaunch(String name, Reader src) {
+	private void doLaunch(String name, Reader src) {
 		if (engine.getEngineMode() == EngineMode.emError) {
 			engine.recover();
 			engine.waitWhileBusy();

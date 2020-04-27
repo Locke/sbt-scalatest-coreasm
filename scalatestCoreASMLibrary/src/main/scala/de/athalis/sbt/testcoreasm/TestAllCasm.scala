@@ -67,7 +67,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
     var requiredOutputList = testSettings.require
 
     val srcReader2: Reader = getTestFileReader(testFileName) // TODO: close?
-    val td = TestEngineDriver.newLaunch(testFileName, srcReader2, null)
+    val td = TestEngineDriver.newLaunch(testFileName, srcReader2)
 
     try {
       td.setOutputStream(new PrintStream(outStream))
