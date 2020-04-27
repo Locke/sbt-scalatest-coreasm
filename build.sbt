@@ -1,6 +1,10 @@
 lazy val root = (project in file("."))
   .aggregate(scalatestCoreASMLibrary, scalatestCoreASM)
   .settings(Commons.settings)
+  .settings(
+    organization := "de.athalis",
+    name := "sbt-scalatest-coreasm-root",
+  )
 
 lazy val scalatestCoreASMLibrary = (project in file("scalatestCoreASMLibrary"))
   .settings(Commons.settings)
@@ -10,7 +14,7 @@ lazy val scalatestCoreASMLibrary = (project in file("scalatestCoreASMLibrary"))
     scalaVersion := Commons.appScalaVersion_2_12,
     crossScalaVersions := Seq(Commons.appScalaVersion_2_10, Commons.appScalaVersion_2_11, Commons.appScalaVersion_2_12),
     publishArtifact in (Compile, packageDoc) := false,
-    libraryDependencies ++= Dependencies.scalatestCoreASMLibraryDependencies
+    libraryDependencies ++= Dependencies.scalatestCoreASMLibraryDependencies,
   )
 
 lazy val scalatestCoreASM = (project in file("scalatestCoreASM"))
@@ -29,5 +33,5 @@ lazy val scalatestCoreASM = (project in file("scalatestCoreASM"))
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
-    scriptedBufferLog := false
+    scriptedBufferLog := false,
   )
