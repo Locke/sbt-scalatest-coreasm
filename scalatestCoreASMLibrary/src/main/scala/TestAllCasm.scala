@@ -85,15 +85,15 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
         val outputLog = logStream.toString
         val outputErr = errStream.toString
 
-        for (line <- outputOut.lines.filter(outFilter)) {
+        for (line <- outputOut.linesIterator.filter(outFilter)) {
           origOutput.println("out: " + line)
         }
 
-        for (line <- outputLog.lines.filter(logFilter)) {
+        for (line <- outputLog.linesIterator.filter(logFilter)) {
           origOutput.println("log" + line)
         }
 
-        for (line <- outputErr.lines.filter(errFilter)) {
+        for (line <- outputErr.linesIterator.filter(errFilter)) {
           origOutput.println("err: " + line)
         }
 
@@ -103,14 +103,14 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
         cp {
           //test if no unexpected error has occurred
-          var errors: Iterator[String] = outputErr.lines
+          var errors: Iterator[String] = outputErr.linesIterator
           errors = errors.filterNot(msg => msg.contains("SLF4J") && msg.contains("binding"))
           (errors.toSeq shouldBe empty) withMessage ("log:\n" + outputLog + "\n\noutput:\n" + outputOut + "\n\nEngine had an error after " + step + " steps: ")
         }
 
         if (failOnWarning) cp {
           //test if no unexpected warning has occurred
-          var warnings = outputLog.lines.filter(_.contains("WARN"))
+          var warnings = outputLog.linesIterator.filter(_.contains("WARN"))
           warnings = warnings.filterNot(msg => msg.contains("The update was not successful so it might not be added to the universe."))
           warnings = warnings.filterNot(msg => msg.contains("org.coreasm.util.Tools") && msg.toLowerCase.contains("root folder"))
           (warnings.toSeq shouldBe empty) withMessage ("output:\n" + outputOut + "\n\nEngine had an warning after " + step + " steps: ")
@@ -118,7 +118,7 @@ abstract class TestAllCasm extends FunSuite with Matchers with Checkpoints {
 
         for (refusedOutput <- testSettings.refuse) {
           cp {
-            outputOut.lines.filter(_.contains(refusedOutput)).toSeq shouldBe empty withMessage ("output: \n" + outputOut)
+            outputOut.linesIterator.filter(_.contains(refusedOutput)).toSeq shouldBe empty withMessage ("output: \n" + outputOut)
           }
         }
         cp.reportAll()

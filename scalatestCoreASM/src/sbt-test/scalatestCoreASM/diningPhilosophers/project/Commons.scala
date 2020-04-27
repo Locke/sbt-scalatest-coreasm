@@ -6,7 +6,7 @@ object Commons {
 
   val appScalaVersion_2_10 = "2.10.7"
   val appScalaVersion_2_11 = "2.11.12"
-  val appScalaVersion_2_12 = "2.12.7"
+  val appScalaVersion_2_12 = "2.12.11"
 
   val settings = Def.settings(
     version := appVersion,
