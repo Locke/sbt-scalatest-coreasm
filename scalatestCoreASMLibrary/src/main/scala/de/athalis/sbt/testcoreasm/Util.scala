@@ -1,8 +1,8 @@
 package de.athalis.sbt.testcoreasm
 
-import scala.language.implicitConversions
-
 import org.scalatest.Matchers._
+
+import scala.language.implicitConversions
 
 object Util {
   class AssertionHolder(f: => Any) {

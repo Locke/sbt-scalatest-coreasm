@@ -1,7 +1,7 @@
 package de.athalis.sbt.testcoreasm
 
-import sbt._
 import sbt.Keys._
+import sbt._
 
 object ScalatestCoreASMPlugin extends AutoPlugin {
   override def requires = plugins.JvmPlugin
